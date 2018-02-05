@@ -76,8 +76,8 @@ def main():
 
   num_classes = 21
   pretrained = True
-  image_size = 32
-  batch_size = 5
+  image_size = 256
+  batch_size = 1
   n_epochs = 2
   n_save = 10
   learning_rate = 1e-2
