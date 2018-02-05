@@ -2,7 +2,7 @@ import os
 from torch.utils.data import Dataset
 from torchvision import transforms
 import random
-from scipy.misc import imread, imresize, imshow
+from scipy.misc import imread, imresize
 import numpy as np
 import torch
 
@@ -22,7 +22,8 @@ class ADE20KDataSet(Dataset):
     self.size = size
     self.train = train
 
-    # mean and std using ImageNet mean and std.
+    # mean and std using ImageNet mean and std,
+    # as required by http://pytorch.org/docs/master/torchvision/models.html
     self.img_transform = transforms.Compose([
       transforms.Normalize(mean=[0.485, 0.456, 0.406],
                            std=[0.229, 0.224, 0.225])])
@@ -115,9 +116,8 @@ class ADE20KDataSet(Dataset):
       # segmentation to integer encoding according to
       # the loadAde20K.m file in http://groups.csail.mit.edu/vision/datasets/ADE20K/
       seg = np.round(seg[:, :, 0] / 10.) * 256 + seg[:, :, 1]
-
-      # label to int from -1 to 149
-      seg = seg.astype(np.int) - 1
+      # seg[i, j] = 0 for unlabeled pixels.
+      seg = seg.astype(np.int)
 
       # to torch tensor
       image = torch.from_numpy(img)
