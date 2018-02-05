@@ -9,11 +9,11 @@ import torch
 
 class ADE20KDataSet(Dataset):
 
-  def __init__(self, file, root, size, max_sample=-1, train=True):
+  def __init__(self, root, file, size, max_sample=-1, train=True):
     """
     Initialization.
-    :param file: The filename of the image samples txt file.
     :param root: The folder root of the image samples.
+    :param file: The filename of the image samples txt file.
     :param size: The image and segmentation size after scale and crop for training.
     :param max_sample: The max number of samples.
     :param train: True if is training.
@@ -28,7 +28,7 @@ class ADE20KDataSet(Dataset):
       transforms.Normalize(mean=[0.485, 0.456, 0.406],
                            std=[0.229, 0.224, 0.225])])
 
-    self.list_sample = [x.strip('\n') for x in open(file, 'r').readlines()]
+    self.list_sample = [x.strip('\n') for x in open(file, 'r').readlines() if x is not '\n']
 
     if self.train:
       random.shuffle(self.list_sample)
