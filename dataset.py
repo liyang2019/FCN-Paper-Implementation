@@ -9,11 +9,12 @@ import torch
 
 class ADE20KDataSet(Dataset):
 
-  def __init__(self, root, file, size, max_sample=-1, train=True):
+  def __init__(self, root, file, classfile, size, max_sample=-1, train=True):
     """
     Initialization.
     :param root: The folder root of the image samples.
     :param file: The filename of the image samples txt file.
+    :param classfile: The file that has class index information.
     :param size: The image and segmentation size after scale and crop for training.
     :param max_sample: The max number of samples.
     :param train: True if is training.
@@ -29,6 +30,12 @@ class ADE20KDataSet(Dataset):
                            std=[0.229, 0.224, 0.225])])
 
     self.list_sample = [x.strip('\n') for x in open(file, 'r').readlines() if x is not '\n']
+    self.class_dict = {0: 0}
+    idx_new = 1
+    for idx in open(classfile, 'r').readlines():
+      if idx is not '\n':
+        self.class_dict[int(idx)] = idx_new
+        idx_new += 1
 
     if self.train:
       random.shuffle(self.list_sample)
@@ -118,6 +125,9 @@ class ADE20KDataSet(Dataset):
       seg = np.round(seg[:, :, 0] / 10.) * 256 + seg[:, :, 1]
       # seg[i, j] = 0 for unlabeled pixels.
       seg = seg.astype(np.int)
+      for i in range(seg.shape[0]):
+        for j in range(seg.shape[1]):
+          seg[i, j] = self.class_dict[seg[i, j]]
 
       # to torch tensor
       image = torch.from_numpy(img)
@@ -144,7 +154,7 @@ class ADE20KDataSet(Dataset):
 
 
 def main():
-  ade20k = ADE20KDataSet('data/filenames020.txt', 'data', 128)
+  ade20k = ADE20KDataSet('data', 'data/top020_train.txt', 'data/top020_class.txt', 128)
   image, segmentation, img_basename = ade20k.__getitem__(1)
   print(image)
   print(segmentation)

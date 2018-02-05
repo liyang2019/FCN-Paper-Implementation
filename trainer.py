@@ -74,17 +74,18 @@ class Trainer:
 def main():
   cuda = torch.cuda.is_available()
 
-  num_classes = 20
+  num_classes = 21
   pretrained = True
-  image_size = 128
+  image_size = 32
   batch_size = 5
   n_epochs = 2
   n_save = 10
-  learning_rate = 1e-4
+  learning_rate = 1e-2
 
   fcn = FCN8s(num_classes=num_classes, pretrained=pretrained)
-  train_set = ADE20KDataSet('data', 'data/top020_train.txt', image_size, train=True)
-  val_set = ADE20KDataSet('data', 'data/top020_val.txt', image_size, train=False)
+  fcn = fcn.cuda() if cuda else fcn
+  train_set = ADE20KDataSet('data', 'data/top020_train.txt', 'data/top020_class.txt', image_size, train=True)
+  val_set = ADE20KDataSet('data', 'data/top020_val.txt', 'data/top020_class.txt', image_size, train=False)
   train_loader = DataLoader(train_set, batch_size, shuffle=True, drop_last=True)
   val_loader = DataLoader(val_set, len(val_set))
   trainer = Trainer(cuda, fcn, train_loader, val_loader, n_epochs, n_save, learning_rate)
